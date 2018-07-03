@@ -114,6 +114,8 @@ resource "null_resource" "deploy-wordpress" {
     always = "${uuid()}"
   }
 
+  depends_on = ["aws_rds_cluster_instance.wordpress"]
+
   provisioner "local-exec" {
     command = <<KUBECTL
         kubectl apply -f ${local_file.namespace.filename} --kubeconfig ${var.kubeconfig} && \
@@ -152,7 +154,8 @@ resource "null_resource" "lb-ingress" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl get svc wordpress -o json -n wordpress --kubeconfig ${var.kubeconfig} | jq -rj '.status.loadBalancer.ingress[0].hostname' > ${path.module}/tmp/lb-ingress"
+    # Let's ensure the LB has been provisioned
+    command = "sleep 60; kubectl get svc wordpress -o json -n wordpress --kubeconfig ${var.kubeconfig} | jq -rj '.status.loadBalancer.ingress[0].hostname' > ${path.module}/tmp/lb-ingress"
   }
 }
 

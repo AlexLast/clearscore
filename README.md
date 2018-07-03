@@ -65,8 +65,9 @@ The following is an example of deploying a dev environment, the same commands/tf
 cd terraform
 terraform init -backend-config="bucket=S3_BUCKET_NAME" -backend-config="region=S3_BUCKET_REGION" -backend-config="dynamodb_table=DYNAMODB_TABLE_NAME"
 terraform workspace new dev
-terraform apply -var-file=clearscore-dev.tfvars -var 'master_password=secure_password'
+terraform plan -var-file=clearscore-dev.tfvars -var 'master_password=secure_password' -out /tmp/dev-plan
 # Apply if plan looks good, ensure the master password is recorded securely (Should be >= characters)
+terraform apply /tmp/dev-plan
 ```
 
 Once the above apply has completed navigate to https://```${terraform.env}```-wordpress.```${var.service_base_domain}``` in a browser to complete the WP initial install.
